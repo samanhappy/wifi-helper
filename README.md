@@ -2,13 +2,13 @@
 
 [中文文档](./README.zh-CN.md)
 
-`WiFi Helper` is a **Tauri 2 + Vanilla TypeScript** macOS desktop app that detects when your Mac is connected to Wi‑Fi but cannot reach the internet, then helps open the captive portal login page in your default browser.
+`WiFi Helper` is a **Tauri 2 + Vanilla TypeScript** macOS desktop app that detects when your Mac is connected to WiFi but cannot reach the internet, then helps open the captive portal login page in your default browser.
 
-The project currently focuses on **public Wi‑Fi networks on macOS**, especially places like Starbucks where web-based authentication is common.
+The project currently focuses on **public WiFi networks on macOS**, especially places like Starbucks where web-based authentication is common.
 
 ## Features
 
-- Detects whether the current connection is using Wi‑Fi
+- Detects whether the current connection is using WiFi
 - Probes for captive portal interception automatically
 - Opens the login page in the default browser when a portal is detected
 - Includes polling, consecutive-hit checks, and cooldown protection to avoid repetitive browser popups
@@ -27,7 +27,7 @@ The project currently focuses on **public Wi‑Fi networks on macOS**, especiall
 
 The app periodically runs the following flow:
 
-1. Check whether the active macOS network interface is Wi‑Fi
+1. Check whether the active macOS network interface is WiFi
 2. Try to obtain the current SSID
 3. Send short-timeout HTTP probes to known connectivity endpoints
 4. Classify the result as one of the following:
@@ -149,7 +149,7 @@ For a more production-ready macOS distribution flow, consider adding:
 
 - The current implementation is macOS-first
 - Some macOS environments redact the current SSID; the project includes fallback handling, but cannot guarantee the original SSID in every environment
-- Public Wi‑Fi captive portals vary widely, so a few networks may still need extra adaptation
+- Public WiFi captive portals vary widely, so a few networks may still need extra adaptation
 
 ## Recommended VS Code Setup
 
