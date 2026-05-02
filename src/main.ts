@@ -58,7 +58,7 @@ function statusLabel(status: NetworkStatus): string {
     case "offline":
       return "无法联网";
     case "notOnWifi":
-      return "未连接 Wi‑Fi";
+      return "未连接 WiFi";
     case "error":
       return "检测异常";
   }
@@ -73,7 +73,7 @@ function statusSummary(result: NetworkCheckResult): string {
     case "offline":
       return "当前像是断网或探测失败，没有看到明确的登录入口。";
     case "notOnWifi":
-      return "还没有连接到 Wi‑Fi，因此不会尝试拉起登录页。";
+      return "还没有连接到 WiFi，因此不会尝试拉起登录页。";
     case "error":
       return "检测流程遇到异常，请查看下面的诊断信息。";
   }
@@ -124,7 +124,7 @@ function render(result: NetworkCheckResult | null, actionMessage?: string): void
   statusBadgeEl.textContent = statusLabel(result.status);
   statusBadgeEl.dataset.tone = statusTone(result.status);
   statusSummaryEl.textContent = statusSummary(result);
-  ssidValueEl.textContent = result.ssid ?? "未连接 Wi‑Fi";
+  ssidValueEl.textContent = result.ssid ?? "未连接 WiFi";
   checkedAtValueEl.textContent = formatTimestamp(result.checkedAt);
   probeUrlValueEl.textContent = result.probeUrl ?? "—";
   portalUrlValueEl.textContent = result.portalUrl ?? "没有拿到明确的门户地址。";

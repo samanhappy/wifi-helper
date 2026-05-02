@@ -253,6 +253,10 @@ fn current_wifi_ssid() -> Result<Option<String>, String> {
             return Ok(None);
         };
 
+        if let Some(ssid) = wifi_ssid_from_ipconfig(device.as_str())? {
+            return Ok(Some(ssid));
+        }
+
         let output = Command::new("networksetup")
             .args(["-getairportnetwork", device.as_str()])
             .output()
@@ -321,7 +325,10 @@ fn find_wifi_device() -> Result<Option<String>, String> {
             for line in block.lines() {
                 let line = line.trim();
 
-                if line == "Hardware Port: WiFi" || line == "Hardware Port: AirPort" {
+                if line == "Hardware Port: Wi-Fi"
+                    || line == "Hardware Port: WiFi"
+                    || line == "Hardware Port: AirPort"
+                {
                     saw_wifi_port = true;
                 }
 
@@ -333,6 +340,64 @@ fn find_wifi_device() -> Result<Option<String>, String> {
             if saw_wifi_port {
                 return Ok(device);
             }
+        }
+
+        return Ok(None);
+    }
+
+    #[allow(unreachable_code)]
+    Ok(None)
+}
+
+fn wifi_ssid_from_ipconfig(device: &str) -> Result<Option<String>, String> {
+    #[cfg(target_os = "macos")]
+    {
+        let output = Command::new("ipconfig")
+            .args(["getsummary", device])
+            .output()
+            .map_err(|error| format!("Failed to execute ipconfig: {error}"))?;
+
+        if !output.status.success() {
+            return Err(format!(
+                "ipconfig getsummary {device} failed with status {}",
+                output.status
+            ));
+        }
+
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let mut interface_type = None::<String>;
+        let mut link_status_active = None::<bool>;
+        let mut ssid = None::<String>;
+
+        for line in stdout.lines() {
+            let line = line.trim();
+
+            if let Some((key, value)) = line.split_once(" : ") {
+                match key.trim() {
+                    "InterfaceType" => interface_type = Some(value.trim().to_string()),
+                    "LinkStatusActive" => {
+                        link_status_active = Some(value.trim().eq_ignore_ascii_case("TRUE"))
+                    }
+                    "SSID" => ssid = Some(value.trim().to_string()),
+                    _ => {}
+                }
+            }
+        }
+
+        let is_wifi = interface_type
+            .as_deref()
+            .map(|value| value.eq_ignore_ascii_case("WiFi"))
+            .unwrap_or(false);
+        let is_active = link_status_active.unwrap_or(false);
+
+        if is_wifi && is_active {
+            if let Some(ssid) = ssid {
+                if !ssid.is_empty() {
+                    return Ok(Some(ssid));
+                }
+            }
+
+            return Ok(Some("Hidden Wi-Fi".to_string()));
         }
 
         return Ok(None);
