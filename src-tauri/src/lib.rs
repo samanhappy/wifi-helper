@@ -287,14 +287,16 @@ fn current_wifi_ssid() -> Result<Option<String>, String> {
         }
 
         if let Some((_, ssid)) = stdout.split_once(": ") {
-            return Ok(Some(ssid.trim().to_string()));
+            if let Some(ssid) = sanitize_ssid(ssid) {
+                return Ok(Some(ssid));
+            }
         }
 
         if stdout.contains("You are not associated with an AirPort network") {
-            return Ok(None);
+            return preferred_wifi_name(device.as_str());
         }
 
-        return Ok(None);
+        return preferred_wifi_name(device.as_str());
     }
 
     #[allow(unreachable_code)]
@@ -392,12 +394,12 @@ fn wifi_ssid_from_ipconfig(device: &str) -> Result<Option<String>, String> {
 
         if is_wifi && is_active {
             if let Some(ssid) = ssid {
-                if !ssid.is_empty() {
+                if let Some(ssid) = sanitize_ssid(&ssid) {
                     return Ok(Some(ssid));
                 }
             }
 
-            return Ok(Some("Hidden Wi-Fi".to_string()));
+            return preferred_wifi_name(device);
         }
 
         return Ok(None);
@@ -405,6 +407,46 @@ fn wifi_ssid_from_ipconfig(device: &str) -> Result<Option<String>, String> {
 
     #[allow(unreachable_code)]
     Ok(None)
+}
+
+fn preferred_wifi_name(device: &str) -> Result<Option<String>, String> {
+    #[cfg(target_os = "macos")]
+    {
+        let output = Command::new("networksetup")
+            .args(["-listpreferredwirelessnetworks", device])
+            .output()
+            .map_err(|error| format!("Failed to list preferred WiFi networks: {error}"))?;
+
+        if !output.status.success() {
+            return Err(format!(
+                "networksetup -listpreferredwirelessnetworks {device} failed with status {}",
+                output.status
+            ));
+        }
+
+        let stdout = String::from_utf8_lossy(&output.stdout);
+
+        for line in stdout.lines().skip(1) {
+            if let Some(ssid) = sanitize_ssid(line) {
+                return Ok(Some(ssid));
+            }
+        }
+
+        return Ok(Some("Hidden Wi-Fi".to_string()));
+    }
+
+    #[allow(unreachable_code)]
+    Ok(None)
+}
+
+fn sanitize_ssid(value: &str) -> Option<String> {
+    let ssid = value.trim();
+
+    if ssid.is_empty() || ssid == "<redacted>" {
+        return None;
+    }
+
+    Some(ssid.to_string())
 }
 
 fn normalize_portal_url(base: &str, candidate: &str) -> Option<String> {
