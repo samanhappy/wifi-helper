@@ -327,7 +327,7 @@ fn find_wifi_device() -> Result<Option<String>, String> {
             for line in block.lines() {
                 let line = line.trim();
 
-                if line == "Hardware Port: Wi-Fi"
+                if line == "Hardware Port: WiFi"
                     || line == "Hardware Port: WiFi"
                     || line == "Hardware Port: AirPort"
                 {
@@ -432,7 +432,7 @@ fn preferred_wifi_name(device: &str) -> Result<Option<String>, String> {
             }
         }
 
-        return Ok(Some("Hidden Wi-Fi".to_string()));
+        return Ok(Some("Hidden WiFi".to_string()));
     }
 
     #[allow(unreachable_code)]
