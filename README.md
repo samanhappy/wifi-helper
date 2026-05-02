@@ -112,6 +112,58 @@ pnpm tauri build
 
 可以在当前基础上继续补充签名、更新源和 CI 发布流程。
 
+## 对外正式发布（GitHub Releases）
+
+项目现已支持通过 **GitHub Actions** 自动执行正式发布。
+
+### 自动发布触发方式
+
+当你推送一个符合语义化版本格式的 Git 标签时，例如：
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+GitHub Actions 会自动：
+
+1. 安装 `pnpm`、Node.js 和 Rust
+2. 校验以下版本号是否一致：
+	- `package.json`
+	- `src-tauri/Cargo.toml`
+	- `src-tauri/tauri.conf.json`
+3. 构建 Tauri release 包
+4. 生成并上传发布产物到 GitHub Release
+
+### 自动上传的产物
+
+- `WiFi Helper_v<version>_macOS_aarch64.dmg`
+- `WiFi Helper_v<version>_macOS_aarch64.zip`
+
+其中 `.zip` 内包含 `.app`，适合直接下载解压；`.dmg` 更适合对外分发安装。
+
+### 正式发布前建议检查
+
+发布前先在本地执行：
+
+```bash
+pnpm release:check
+pnpm tauri build
+```
+
+### GitHub 仓库要求
+
+为了让自动发布正常工作，仓库需要开启 GitHub Actions，并允许工作流写入 `contents` 权限来创建 Release。
+
+当前工作流不依赖 Apple Developer 签名或 notarization，因此可以直接生成未签名的公开测试版安装包。
+
+如果后续要面向更正式的 macOS 分发渠道，建议继续补充：
+
+- Apple Developer 签名
+- notarization
+- 自动更新元数据
+- Release Notes 模板
+
 ## 已知限制
 
 - 当前实现优先面向 macOS

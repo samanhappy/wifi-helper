@@ -4,11 +4,13 @@
   "version": "0.1.0",
   "description": "A macOS Tauri app that detects captive portal WiFi networks and opens the login page.",
   "license": "MIT",
+  "packageManager": "pnpm@10.10.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "release:check": "node ./scripts/check-release-version.mjs",
     "tauri": "tauri"
   },
   "dependencies": {
