@@ -1,8 +1,9 @@
 [package]
 name = "wifi-helper"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "A macOS Tauri app that detects captive portal Wi-Fi networks and opens the login page"
+authors = ["samanhappy"]
+license = "MIT"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
