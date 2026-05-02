@@ -1,46 +1,49 @@
 # WiFi Helper
 
-`WiFi Helper` 是一个基于 **Tauri 2 + Vanilla TypeScript** 的 macOS 桌面应用，用来检测“已经连接 Wi‑Fi 但无法正常联网”的场景，并在识别到 **captive portal**（门户登录页）后，尝试用默认浏览器打开登录页，帮助用户尽快恢复上网。
+[中文文档](./README.zh-CN.md)
 
-当前项目优先面向 **macOS 公共 Wi‑Fi** 使用场景，尤其适合像星巴克这类经常需要网页认证的热点环境。
+`WiFi Helper` is a **Tauri 2 + Vanilla TypeScript** macOS desktop app that detects when your Mac is connected to Wi‑Fi but cannot reach the internet, then helps open the captive portal login page in your default browser.
 
-## 功能特性
+The project currently focuses on **public Wi‑Fi networks on macOS**, especially places like Starbucks where web-based authentication is common.
 
-- 自动检测当前是否连接到 Wi‑Fi
-- 自动探测网络是否被 captive portal 拦截
-- 检测到门户登录页时可自动打开默认浏览器
-- 内置轮询、连续命中判断和冷却时间，避免重复弹出浏览器
-- 提供手动“立即检测”和“打开登录页”入口
+## Features
 
-## 技术栈
+- Detects whether the current connection is using Wi‑Fi
+- Probes for captive portal interception automatically
+- Opens the login page in the default browser when a portal is detected
+- Includes polling, consecutive-hit checks, and cooldown protection to avoid repetitive browser popups
+- Provides manual actions for “Check now” and “Open login page”
+- Supports **English and Simplified Chinese** in the app UI
 
-- **前端**：Vanilla TypeScript + Vite
-- **桌面壳**：Tauri 2
-- **后端**：Rust
-- **打开系统浏览器**：`@tauri-apps/plugin-opener`
-- **联网探测**：`reqwest`
+## Tech Stack
 
-## 工作原理
+- **Frontend**: Vanilla TypeScript + Vite
+- **Desktop shell**: Tauri 2
+- **Backend**: Rust
+- **Open system browser**: `@tauri-apps/plugin-opener`
+- **Connectivity probing**: `reqwest`
 
-应用启动后会定时执行以下流程：
+## How It Works
 
-1. 在 macOS 上检查当前活动网络接口是否为 Wi‑Fi
-2. 尝试获取当前 SSID
-3. 对多个探测地址发起短超时 HTTP 请求
-4. 根据以下信号判断网络状态：
-	- 正常联网
-	- captive portal
-	- 离线/异常
-5. 当连续多次命中 captive portal，且不在冷却时间内时，自动打开默认浏览器
+The app periodically runs the following flow:
 
-当前使用的探测地址：
+1. Check whether the active macOS network interface is Wi‑Fi
+2. Try to obtain the current SSID
+3. Send short-timeout HTTP probes to known connectivity endpoints
+4. Classify the result as one of the following:
+   - connected
+   - captive portal
+   - offline / error
+5. If a captive portal is detected multiple times in a row and the cooldown window has expired, open the default browser automatically
+
+Current probe endpoints:
 
 - `http://captive.apple.com/hotspot-detect.html`
 - `http://connectivitycheck.gstatic.com/generate_204`
 
-## 开发环境要求
+## Requirements
 
-建议环境：
+Recommended environment:
 
 - macOS
 - Node.js 18+
@@ -48,129 +51,107 @@
 - Rust stable
 - Xcode Command Line Tools
 
-如果还没有安装 Tauri 所需环境，可参考：
+If you still need to prepare the Tauri prerequisites, see:
 
 - <https://tauri.app/start/prerequisites/>
 
-## 本地开发
+## Local Development
 
-安装依赖：
+Install dependencies:
 
 ```bash
 pnpm install
 ```
 
-启动开发环境：
+Start the development app:
 
 ```bash
 pnpm tauri dev
 ```
 
-## 构建
+## Build
 
-构建前端资源：
+Build frontend assets:
 
 ```bash
 pnpm build
 ```
 
-构建桌面应用发布包：
+Build the desktop release bundle:
 
 ```bash
 pnpm tauri build
 ```
 
-构建完成后，产物通常位于：
+Release artifacts are typically generated in:
 
 - `src-tauri/target/release/`
 - `src-tauri/target/release/bundle/`
 
-在 macOS 下常见产物包括：
+Common macOS outputs include:
 
 - `.app`
 - `.dmg`
 
-## 发布说明
+## Public Release via GitHub Releases
 
-当前项目已具备**本地发布**能力，也就是可以直接构建出可分发的 macOS 应用包。
+This project supports **automated public releases with GitHub Actions**.
 
-推荐的发布流程：
+### Triggering a Release
 
-1. 更新版本号：
-	- `package.json`
-	- `src-tauri/Cargo.toml`
-	- `src-tauri/tauri.conf.json`
-2. 执行：`pnpm tauri build`
-3. 从 `src-tauri/target/release/bundle/` 获取发布产物
-4. 将 `.dmg` 或 `.app` 分发给测试用户
-
-如果后续需要进一步发布到：
-
-- GitHub Releases
-- 官网下载页
-- Sparkle/Tauri Updater 自动更新
-
-可以在当前基础上继续补充签名、更新源和 CI 发布流程。
-
-## 对外正式发布（GitHub Releases）
-
-项目现已支持通过 **GitHub Actions** 自动执行正式发布。
-
-### 自动发布触发方式
-
-当你推送一个符合语义化版本格式的 Git 标签时，例如：
+Push a semantic version tag such as:
 
 ```bash
 git tag v0.1.0
 git push origin v0.1.0
 ```
 
-GitHub Actions 会自动：
+The release workflow will automatically:
 
-1. 安装 `pnpm`、Node.js 和 Rust
-2. 校验以下版本号是否一致：
-	- `package.json`
-	- `src-tauri/Cargo.toml`
-	- `src-tauri/tauri.conf.json`
-3. 构建 Tauri release 包
-4. 生成并上传发布产物到 GitHub Release
+1. Install `pnpm`, Node.js, and Rust
+2. Verify version consistency across:
+   - `package.json`
+   - `src-tauri/Cargo.toml`
+   - `src-tauri/tauri.conf.json`
+3. Build the Tauri release bundle
+4. Upload artifacts to GitHub Releases
 
-### 自动上传的产物
+### Uploaded Assets
 
 - `WiFi Helper_v<version>_macOS_aarch64.dmg`
 - `WiFi Helper_v<version>_macOS_aarch64.zip`
 
-其中 `.zip` 内包含 `.app`，适合直接下载解压；`.dmg` 更适合对外分发安装。
+The `.zip` contains the `.app` bundle for direct extraction, while the `.dmg` is more convenient for external distribution.
 
-### 正式发布前建议检查
+### Recommended Pre-release Checks
 
-发布前先在本地执行：
+Before pushing a release tag, run:
 
 ```bash
 pnpm release:check
 pnpm tauri build
 ```
 
-### GitHub 仓库要求
+### GitHub Repository Requirements
 
-为了让自动发布正常工作，仓库需要开启 GitHub Actions，并允许工作流写入 `contents` 权限来创建 Release。
+To make automated releases work, the repository must have GitHub Actions enabled and allow the workflow to write `contents` permissions for creating releases.
 
-当前工作流不依赖 Apple Developer 签名或 notarization，因此可以直接生成未签名的公开测试版安装包。
+The current workflow does **not** require Apple Developer signing or notarization, so it produces unsigned public test builds.
 
-如果后续要面向更正式的 macOS 分发渠道，建议继续补充：
+For a more production-ready macOS distribution flow, consider adding:
 
-- Apple Developer 签名
+- Apple Developer signing
 - notarization
-- 自动更新元数据
-- Release Notes 模板
+- updater metadata
+- a release notes template
 
-## 已知限制
+## Limitations
 
-- 当前实现优先面向 macOS
-- 某些 macOS 环境会对当前 SSID 做脱敏，项目已尽量做回退处理，但并非所有系统环境都能 100% 获取到原始 SSID
-- 公共 Wi‑Fi 的门户实现差异较大，个别网络可能仍需额外适配
+- The current implementation is macOS-first
+- Some macOS environments redact the current SSID; the project includes fallback handling, but cannot guarantee the original SSID in every environment
+- Public Wi‑Fi captive portals vary widely, so a few networks may still need extra adaptation
 
-## 推荐的 VS Code 开发环境
+## Recommended VS Code Setup
 
 - [VS Code](https://code.visualstudio.com/)
 - [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode)
@@ -178,4 +159,4 @@ pnpm tauri build
 
 ## License
 
-本项目采用 [MIT License](./LICENSE)。
+This project is licensed under the [MIT License](./LICENSE).

@@ -10,11 +10,18 @@
 
   <body>
     <main class="app-shell">
+      <section class="topbar">
+        <div class="language-switcher" aria-label="Language switcher">
+          <button id="lang-zh" type="button" class="lang-button is-active">中文</button>
+          <button id="lang-en" type="button" class="lang-button secondary">English</button>
+        </div>
+      </section>
+
       <section class="hero card">
         <div>
-          <p class="eyebrow">macOS captive portal assistant</p>
-          <h1>WiFi 助手</h1>
-          <p class="hero-copy">
+          <p class="eyebrow" id="eyebrow-text">macOS captive portal assistant</p>
+          <h1 id="hero-title">WiFi 助手</h1>
+          <p class="hero-copy" id="hero-copy">
             自动检测“已经连上 WiFi 但无法上网”的情况；如果识别到门户登录页，就尝试帮你在默认浏览器中打开它。
           </p>
         </div>
@@ -26,30 +33,30 @@
 
       <section class="grid">
         <article class="card detail-card">
-          <h2>当前网络</h2>
+          <h2 id="network-section-title">当前网络</h2>
           <dl class="detail-list">
             <div>
-              <dt>WiFi 名称</dt>
+              <dt id="ssid-label">WiFi 名称</dt>
               <dd id="ssid-value">未检测</dd>
             </div>
             <div>
-              <dt>最近检测</dt>
+              <dt id="checked-at-label">最近检测</dt>
               <dd id="checked-at-value">尚未检测</dd>
             </div>
             <div>
-              <dt>探测地址</dt>
+              <dt id="probe-url-label">探测地址</dt>
               <dd id="probe-url-value">—</dd>
             </div>
           </dl>
         </article>
 
         <article class="card detail-card">
-          <h2>登录入口</h2>
+          <h2 id="portal-section-title">登录入口</h2>
           <p class="helper-text" id="portal-url-value">还没有可打开的门户链接。</p>
           <div class="actions">
             <button id="check-button" type="button">立即检测</button>
             <button id="portal-button" type="button" class="secondary" disabled>
-              打开登录页
+              <span id="portal-button-label">打开登录页</span>
             </button>
           </div>
           <p class="helper-text" id="action-message">
@@ -59,7 +66,7 @@
       </section>
 
       <section class="card detail-card wide">
-        <h2>诊断说明</h2>
+        <h2 id="reason-section-title">诊断说明</h2>
         <p class="reason" id="reason-value">
           检测尚未开始。首次检测完成后，这里会显示详细诊断信息。
         </p>

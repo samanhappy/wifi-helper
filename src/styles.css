@@ -26,6 +26,36 @@ body {
   min-height: 100vh;
 }
 
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.language-switcher {
+  display: inline-flex;
+  gap: 8px;
+  padding: 6px;
+  background: rgba(11, 24, 43, 0.5);
+  border: 1px solid rgba(132, 171, 214, 0.18);
+  border-radius: 999px;
+  backdrop-filter: blur(18px);
+}
+
+.lang-button {
+  min-width: 82px;
+  padding: 0.45em 0.9em;
+  background: transparent;
+  color: #bfd1e7;
+  box-shadow: none;
+  border-color: transparent;
+}
+
+.lang-button.is-active {
+  color: #07111f;
+  background: linear-gradient(135deg, #8ed0ff 0%, #77e8c7 100%);
+}
+
 .app-shell {
   width: min(1040px, calc(100vw - 48px));
   margin: 0 auto;
