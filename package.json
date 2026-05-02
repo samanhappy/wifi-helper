@@ -1,7 +1,7 @@
 {
   "name": "wifi-helper",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A macOS Tauri app that detects captive portal WiFi networks and opens the login page.",
   "license": "MIT",
   "packageManager": "pnpm@10.10.0",
