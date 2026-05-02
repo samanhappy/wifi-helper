@@ -136,12 +136,31 @@ pnpm tauri build
 
 To make automated releases work, the repository must have GitHub Actions enabled and allow the workflow to write `contents` permissions for creating releases.
 
-The current workflow does **not** require Apple Developer signing or notarization, so it produces unsigned public test builds.
+The release workflow now expects a valid **Developer ID Application** certificate and notarization credentials so the generated `.app` / `.dmg` can pass macOS Gatekeeper checks.
+
+Required GitHub Actions secrets:
+
+- `APPLE_CERTIFICATE`: base64-encoded exported `.p12` certificate for **Developer ID Application**
+- `APPLE_CERTIFICATE_PASSWORD`: export password used for the `.p12`
+- `KEYCHAIN_PASSWORD`: temporary keychain password used in CI
+
+Use **one** notarization method:
+
+- App Store Connect API:
+   - `APPLE_API_KEY`: `.p8` private key content or its base64 form
+   - `APPLE_API_KEY_ID`
+   - `APPLE_API_ISSUER`
+- or Apple ID:
+   - `APPLE_ID`
+   - `APPLE_PASSWORD` (app-specific password)
+   - `APPLE_TEAM_ID`
+
+The workflow imports the certificate into a temporary keychain, resolves the `Developer ID Application` signing identity, lets `pnpm tauri build` sign and notarize the bundle, and then validates the generated `.app` with `codesign`, `spctl`, and `stapler` before publishing release assets.
+
+If these secrets are missing, the workflow now fails early instead of uploading an unsigned build that macOS may report as damaged.
 
 For a more production-ready macOS distribution flow, consider adding:
 
-- Apple Developer signing
-- notarization
 - updater metadata
 - a release notes template
 

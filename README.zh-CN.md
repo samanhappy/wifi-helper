@@ -136,12 +136,31 @@ pnpm tauri build
 
 为了让自动发布正常工作，仓库需要开启 GitHub Actions，并允许工作流写入 `contents` 权限来创建 Release。
 
-当前工作流不依赖 Apple Developer 签名或 notarization，因此可以直接生成未签名的公开测试版安装包。
+现在的发布工作流要求提供有效的 **Developer ID Application** 证书和 notarization 凭据，这样生成出来的 `.app` / `.dmg` 才能通过 macOS Gatekeeper 检查。
 
-如果后续要面向更正式的 macOS 分发渠道，建议继续补充：
+需要配置的 GitHub Actions secrets：
 
-- Apple Developer 签名
-- notarization
+- `APPLE_CERTIFICATE`：导出的 **Developer ID Application** `.p12` 证书内容（base64）
+- `APPLE_CERTIFICATE_PASSWORD`：导出 `.p12` 时设置的密码
+- `KEYCHAIN_PASSWORD`：CI 临时 keychain 使用的密码
+
+notarization 二选一：
+
+- App Store Connect API：
+   - `APPLE_API_KEY`：`.p8` 私钥内容，或其 base64 形式
+   - `APPLE_API_KEY_ID`
+   - `APPLE_API_ISSUER`
+- 或 Apple ID：
+   - `APPLE_ID`
+   - `APPLE_PASSWORD`（app-specific password）
+   - `APPLE_TEAM_ID`
+
+工作流会先把证书导入临时 keychain，解析出 `Developer ID Application` 签名身份，然后让 `pnpm tauri build` 完成签名和 notarization，并在发布前用 `codesign`、`spctl`、`stapler` 校验产物。
+
+如果这些 secrets 没有配置，工作流会直接失败，而不是继续上传一个可能被 macOS 判定为“已损坏”的未签名安装包。
+
+如果后续还要把发布流程做得更完整，建议继续补充：
+
 - 自动更新元数据
 - Release Notes 模板
 
