@@ -3,6 +3,17 @@ import path from "node:path";
 
 const root = process.cwd();
 
+function resolveExpectedVersion() {
+  const cliArgs = process.argv.slice(2).filter((value) => value !== "--");
+  const rawVersion = cliArgs[0] ?? process.env.RELEASE_VERSION ?? process.env.GITHUB_REF_NAME;
+
+  if (!rawVersion) {
+    return null;
+  }
+
+  return rawVersion.trim().replace(/^v/, "");
+}
+
 function readJson(relativePath) {
   const filePath = path.join(root, relativePath);
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -26,6 +37,7 @@ function parseCargoVersion(tomlText) {
 const packageJson = readJson("package.json");
 const tauriConfig = readJson("src-tauri/tauri.conf.json");
 const cargoToml = readText("src-tauri/Cargo.toml");
+const expectedVersion = resolveExpectedVersion();
 
 const packageVersion = packageJson.version;
 const tauriVersion = tauriConfig.version;
@@ -46,6 +58,13 @@ if (uniqueVersions.length !== 1) {
     console.error(`- ${file}: ${version}`);
   }
 
+  process.exit(1);
+}
+
+if (expectedVersion && uniqueVersions[0] !== expectedVersion) {
+  console.error(
+    `Release version ${uniqueVersions[0]} does not match expected version ${expectedVersion}.`,
+  );
   process.exit(1);
 }
 

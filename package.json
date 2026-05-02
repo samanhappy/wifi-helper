@@ -10,6 +10,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "release:sync": "node ./scripts/sync-release-version.mjs",
     "release:check": "node ./scripts/check-release-version.mjs",
     "tauri": "tauri"
   },
