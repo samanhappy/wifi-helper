@@ -327,7 +327,7 @@ fn find_wifi_device() -> Result<Option<String>, String> {
             for line in block.lines() {
                 let line = line.trim();
 
-                if line == "Hardware Port: Wi-Fi"
+                if line == "Hardware Port: WiFi"
                     || line == "Hardware Port: WiFi"
                     || line == "Hardware Port: AirPort"
                 {
